@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLO3D — Quiz 2 | Modules 4 à 7</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #0E2841;
+  --blue:    #156082;
+  --blue-lt: #1e7ca3;
+  --teal:    #0FA3B1;
+  --orange:  #E97132;
+  --green:   #196B24;
+  --green-lt:#22963A;
+  --red:     #B83232;
+  --gold:    #B8860B;
+  --purple:  #5B35B5;
+  --bg:      #0D1B2A;
+  --bg2:     #0F2235;
+  --bg3:     #132740;
+  --card:    #1A3450;
+  --card2:   #1E3D5C;
+  --border:  #2A4A6A;
+  --border2: #3A5A7A;
+  --text:    #E8F0F6;
+  --text2:   #A0B8CC;
+  --text3:   #6A8FAF;
+  --white:   #FFFFFF;
+  --rad:     14px;
+  --trans:   0.22s cubic-bezier(.4,0,.2,1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ── ANIMATED GRID BACKGROUND ──────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(21,96,130,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21,96,130,0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none; z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(21,96,130,0.12) 0%, transparent 70%);
+  top: -200px; right: -200px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── HEADER ─────────────────────────────────────────── */
+.site-header {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(13,27,42,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.header-left { display: flex; align-items: center; gap: 16px; }
+
+.logo-chip {
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 1px;
+  padding: 7px 16px; border-radius: 8px;
+  box-shadow: 0 0 20px rgba(21,96,130,0.4);
+}
+
+.header-label {
+  color: var(--text2);
+  font-size: 13px; font-weight: 400;
+  line-height: 1.3;
+}
+.header-label strong { color: var(--text); display: block; font-size: 14px; font-weight: 600; }
+
+.header-right { display: flex; align-items: center; gap: 14px; }
+
+.quiz-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  color: var(--teal);
+  background: rgba(15,163,177,0.1);
+  border: 1px solid rgba(15,163,177,0.25);
+  padding: 5px 14px; border-radius: 20px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+.mod-tags { display: flex; gap: 6px; }
+.mod-tag {
+  font-size: 11px; font-weight: 500;
+  color: var(--text3);
+  border: 1px solid var(--border2);
+  padding: 3px 10px; border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+/* ── PROGRESS STRIP ─────────────────────────────────── */
+.progress-strip {
+  position: sticky; top: 64px; z-index: 190;
+  background: rgba(13,27,42,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 40px;
+  display: flex; align-items: center; gap: 16px;
+}
+
+.prog-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text3);
+  letter-spacing: 0.5px; white-space: nowrap;
+  min-width: 90px;
+}
+.prog-label span { color: var(--text); font-weight: 500; }
+
+.prog-dots {
+  display: flex; gap: 5px; flex-shrink: 0;
+}
+.prog-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border2);
+  transition: var(--trans);
+}
+.prog-dot.done { background: var(--teal); box-shadow: 0 0 8px rgba(15,163,177,0.5); }
+.prog-dot.correct { background: var(--green-lt); }
+.prog-dot.wrong { background: var(--red); }
+
+.prog-bar-wrap {
+  flex: 1; height: 4px;
+  background: var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+.prog-bar {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--blue) 0%, var(--teal) 100%);
+  border-radius: 10px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 0 10px rgba(15,163,177,0.4);
+}
+
+.score-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border2);
+  padding: 5px 14px; border-radius: 20px;
+  white-space: nowrap;
+  transition: var(--trans);
+}
+.score-chip .pts { color: var(--teal); }
+
+/* ── HERO ────────────────────────────────────────────── */
+.hero {
+  position: relative; z-index: 1;
+  padding: 60px 40px 50px;
+  background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(21,96,130,0.2) 0%, transparent 70%);
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.hero-inner { max-width: 820px; position: relative; z-index: 1; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+}
+.eyebrow-line {
+  width: 32px; height: 2px;
+  background: linear-gradient(90deg, var(--teal), transparent);
+  border-radius: 2px;
+}
+.eyebrow-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  color: var(--teal); letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(30px, 4vw, 50px);
+  font-weight: 700; color: var(--white);
+  line-height: 1.15; margin-bottom: 16px;
+}
+.hero h1 em {
+  font-style: italic; font-weight: 400;
+  color: var(--teal);
+}
+
+.hero-desc {
+  font-size: 15px; color: var(--text2);
+  line-height: 1.7; max-width: 560px;
+  margin-bottom: 36px;
+}
+
+.hero-meta {
+  display: flex; gap: 0; flex-wrap: wrap;
+}
+.meta-item {
+  padding: 18px 32px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  position: relative;
+}
+.meta-item:first-child { border-radius: var(--rad) 0 0 var(--rad); }
+.meta-item:last-child  { border-radius: 0 var(--rad) var(--rad) 0; }
+.meta-item + .meta-item { border-left: none; }
+
+.meta-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 30px; color: var(--white);
+  line-height: 1;
+}
+.meta-val.teal { color: var(--teal); }
+.meta-lbl {
+  font-size: 11px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* ── MAIN ────────────────────────────────────────────── */
+main {
+  max-width: 900px; margin: 0 auto;
+  padding: 52px 24px 60px;
+  position: relative; z-index: 1;
+}
+
+/* ── SECTION HEADER ─────────────────────────────────── */
+.sec-header {
+  display: flex; align-items: stretch;
+  gap: 0; margin: 56px 0 28px;
+  border-radius: var(--rad);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+.sec-header:first-child { margin-top: 0; }
+
+.sec-color { width: 6px; flex-shrink: 0; }
+.sec-color.c-blue   { background: var(--blue); }
+.sec-color.c-teal   { background: var(--teal); }
+.sec-color.c-orange { background: var(--orange); }
+.sec-color.c-purple { background: var(--purple); }
+
+.sec-body {
+  flex: 1; background: var(--card);
+  padding: 16px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+}
+
+.sec-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 20px;
+  border: 1px solid;
+}
+.sec-tag.c-blue   { color: var(--teal);  border-color: rgba(21,96,130,0.4);  background: rgba(21,96,130,0.12); }
+.sec-tag.c-teal   { color: var(--teal);  border-color: rgba(15,163,177,0.4); background: rgba(15,163,177,0.12); }
+.sec-tag.c-orange { color: var(--orange);border-color: rgba(233,113,50,0.4); background: rgba(233,113,50,0.12); }
+.sec-tag.c-purple { color: #8B6FE8;      border-color: rgba(91,53,181,0.4);  background: rgba(91,53,181,0.12); }
+
+.sec-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; color: var(--white);
+  font-weight: 700;
+}
+
+.sec-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--text3);
+  white-space: nowrap;
+}
+
+/* ── QUESTION CARD ──────────────────────────────────── */
+.q-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--rad);
+  overflow: hidden;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  animation: appear 0.4s ease both;
+  transition: box-shadow var(--trans), border-color var(--trans);
+}
+.q-card:hover { border-color: var(--border2); box-shadow: 0 6px 30px rgba(0,0,0,0.35); }
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Top accent bar per module */
+.q-card.mod4 { border-top: 3px solid var(--blue); }
+.q-card.mod5 { border-top: 3px solid var(--teal); }
+.q-card.mod6 { border-top: 3px solid var(--orange); }
+.q-card.mod7 { border-top: 3px solid var(--purple); }
+
+.q-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; gap: 14px; align-items: flex-start;
+}
+
+.q-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 700;
+  color: #fff;
+  min-width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+.q-num.nb { background: var(--blue); }
+.q-num.nt { background: var(--teal); }
+.q-num.no { background: var(--orange); }
+.q-num.np { background: var(--purple); }
+
+.q-meta { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+
+.q-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 20px; border: 1px solid;
+  width: fit-content;
+}
+.q-badge.qcm    { color: #5BB8E8; border-color: rgba(91,184,232,0.3); background: rgba(91,184,232,0.08); }
+.q-badge.vf     { color: var(--orange); border-color: rgba(233,113,50,0.3); background: rgba(233,113,50,0.08); }
+.q-badge.match  { color: #6AE8A0; border-color: rgba(106,232,160,0.3); background: rgba(106,232,160,0.08); }
+.q-badge.fill   { color: #C08AFF; border-color: rgba(192,138,255,0.3); background: rgba(192,138,255,0.08); }
+.q-badge.order  { color: #FFD080; border-color: rgba(255,208,128,0.3); background: rgba(255,208,128,0.08); }
+
+.q-text {
+  font-size: 15px; font-weight: 500;
+  color: var(--text); line-height: 1.6;
+}
+.q-note { font-size: 12px; color: var(--text3); margin-top: 5px; font-style: italic; }
+
+.q-body { padding: 22px 24px 24px; }
+
+/* ── OPTIONS ────────────────────────────────────────── */
+.options { display: flex; flex-direction: column; gap: 10px; }
+
+.opt {
+  display: flex; align-items: center; gap: 13px;
+  padding: 13px 16px;
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--card2);
+  transition: all var(--trans);
+  user-select: none; position: relative;
+}
+.opt:hover:not(.locked) {
+  border-color: var(--teal);
+  background: rgba(15,163,177,0.08);
+  transform: translateX(4px);
+}
+.opt.sel:not(.locked) {
+  border-color: var(--teal);
+  background: rgba(15,163,177,0.1);
+}
+.opt.locked { cursor: default; transform: none !important; }
+.opt.ok   { border-color: var(--green-lt); background: rgba(34,150,58,0.1); }
+.opt.bad  { border-color: var(--red);      background: rgba(184,50,50,0.1); }
+.opt.miss { border-color: var(--green-lt); background: rgba(34,150,58,0.06); opacity: 0.7; }
+
+.opt-l {
+  width: 32px; height: 32px; border-radius: 7px;
+  background: var(--border);
+  color: var(--text2); font-weight: 700; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-family: 'JetBrains Mono', monospace;
+  transition: var(--trans);
+}
+.opt.ok  .opt-l { background: var(--green-lt); color: #fff; }
+.opt.bad .opt-l { background: var(--red);      color: #fff; }
+.opt.miss .opt-l { background: var(--green-lt); color: #fff; }
+.opt.sel:not(.locked) .opt-l { background: var(--teal); color: #fff; }
+
+.opt-txt {
+  font-size: 14px; color: var(--text2); line-height: 1.45; flex: 1;
+}
+.opt.ok .opt-txt  { color: #8FE8A8; }
+.opt.bad .opt-txt { color: #E89898; }
+
+.opt-ico { font-size: 16px; flex-shrink: 0; opacity: 0; transition: opacity 0.2s; }
+.opt.ok .opt-ico,.opt.bad .opt-ico,.opt.miss .opt-ico { opacity: 1; }
+
+/* ── VF BUTTONS ─────────────────────────────────────── */
+.vf-row { display: flex; gap: 14px; }
+.vf-btn {
+  flex: 1; padding: 20px 14px;
+  border: 1.5px solid var(--border2);
+  border-radius: 10px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: var(--card2); transition: all var(--trans); user-select: none;
+}
+.vf-btn:hover:not(.locked) {
+  border-color: var(--teal);
+  background: rgba(15,163,177,0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.vf-btn.sel:not(.locked) { border-color: var(--teal); background: rgba(15,163,177,0.1); }
+.vf-btn.ok   { border-color: var(--green-lt); background: rgba(34,150,58,0.12); }
+.vf-btn.bad  { border-color: var(--red);      background: rgba(184,50,50,0.12); }
+.vf-btn.miss { border-color: var(--green-lt); background: rgba(34,150,58,0.06); opacity: 0.7; }
+.vf-btn.locked { cursor: default; transform: none !important; box-shadow: none !important; }
+.vf-emoji { font-size: 30px; }
+.vf-lbl { font-size: 14px; font-weight: 600; color: var(--text); }
+
+/* ── MATCH SELECTS ──────────────────────────────────── */
+.match-table { display: flex; flex-direction: column; gap: 10px; }
+.match-row { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 10px; align-items: center; }
+
+.match-lbl {
+  padding: 11px 16px;
+  background: linear-gradient(135deg, var(--navy), var(--bg3));
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  font-size: 13px; font-weight: 500; color: var(--text);
+  text-align: center;
+}
+
+.match-arr { color: var(--teal); font-size: 18px; text-align: center; }
+
+.match-sel {
+  padding: 11px 14px;
+  background: var(--card2);
+  border: 1.5px solid var(--border2);
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; color: var(--text);
+  cursor: pointer; width: 100%;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230FA3B1' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+  padding-right: 30px; transition: var(--trans);
+}
+.match-sel:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(15,163,177,0.15); }
+.match-sel option { background: var(--bg3); }
+.match-sel.ok   { border-color: var(--green-lt); background-color: rgba(34,150,58,0.1); }
+.match-sel.bad  { border-color: var(--red);      background-color: rgba(184,50,50,0.1); }
+
+/* ── FILL INPUT ─────────────────────────────────────── */
+.fill-group { display: flex; flex-direction: column; gap: 6px; }
+.fill-label {
+  font-size: 11px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.8px;
+}
+.fill-inp {
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--card2);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; color: var(--text);
+  transition: var(--trans);
+}
+.fill-inp:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(15,163,177,0.12); background: var(--bg3); }
+.fill-inp:disabled { cursor: default; }
+.fill-inp.ok  { border-color: var(--green-lt); color: #8FE8A8; background: rgba(34,150,58,0.08); }
+.fill-inp.bad { border-color: var(--red);      color: #E89898; background: rgba(184,50,50,0.08); }
+.fill-hint { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+/* ── VALIDATE BUTTON ────────────────────────────────── */
+.btn-val {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: #fff; font-weight: 600; font-size: 14px;
+  padding: 12px 24px; border-radius: 10px;
+  border: none; cursor: pointer;
+  margin-top: 18px;
+  transition: all var(--trans);
+  box-shadow: 0 4px 14px rgba(21,96,130,0.35);
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.2px;
+}
+.btn-val:hover:not(:disabled):not(.done) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(21,96,130,0.5);
+}
+.btn-val:disabled { opacity: 0.35; cursor: default; transform: none; }
+.btn-val.done { pointer-events: none; }
+.btn-val.done.ok  { background: linear-gradient(135deg, #196B24, #22963A); box-shadow: 0 4px 14px rgba(25,107,36,0.4); }
+.btn-val.done.bad { background: linear-gradient(135deg, #7A1E1E, #B83232); box-shadow: 0 4px 14px rgba(184,50,50,0.4); }
+
+/* ── FEEDBACK ───────────────────────────────────────── */
+.fb {
+  margin-top: 16px; padding: 15px 18px;
+  border-radius: 10px; font-size: 13.5px; line-height: 1.6;
+  display: none; animation: fadeUp 0.3s ease;
+  border-left: 3px solid transparent;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+.fb.show { display: block; }
+.fb.ok-fb  { background: rgba(34,150,58,0.1);  border-color: var(--green-lt); color: #9FE8B0; }
+.fb.bad-fb { background: rgba(184,50,50,0.1);  border-color: var(--red);      color: #F0A0A0; }
+.fb strong { display: block; margin-bottom: 5px; font-size: 14px; }
+.fb .ans   { color: var(--teal); font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+/* ── COLOR LEGEND (for tension map Q) ──────────────── */
+.color-legend { display: flex; flex-direction: column; gap: 10px; margin-bottom: 6px; }
+.cl-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 14px;
+  background: var(--card2); border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.cl-swatch {
+  width: 36px; height: 28px; border-radius: 6px;
+  flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1);
+}
+.cl-text { font-size: 13px; color: var(--text2); flex: 1; }
+.cl-select {
+  padding: 7px 12px;
+  background: var(--bg3);
+  border: 1.5px solid var(--border2);
+  border-radius: 7px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px; color: var(--text);
+  cursor: pointer; min-width: 200px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%230FA3B1' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+  padding-right: 26px; transition: var(--trans);
+}
+.cl-select:focus { outline: none; border-color: var(--teal); }
+.cl-select option { background: var(--bg3); }
+.cl-select.ok  { border-color: var(--green-lt); background-color: rgba(34,150,58,0.1); }
+.cl-select.bad { border-color: var(--red);      background-color: rgba(184,50,50,0.1); }
+
+/* ── PROPS TABLE (for Q fabric properties) ──────────── */
+.prop-table { display: flex; flex-direction: column; gap: 9px; }
+.prop-row {
+  display: grid; grid-template-columns: 140px 1fr 1fr;
+  gap: 10px; align-items: center;
+}
+.prop-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 500; color: var(--teal);
+  padding: 9px 12px; background: var(--bg3);
+  border-radius: 7px; border: 1px solid var(--border2); text-align: center;
+}
+.prop-inp {
+  padding: 9px 12px;
+  background: var(--card2); border: 1.5px solid var(--border2);
+  border-radius: 7px; font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--text); transition: var(--trans); width: 100%;
+}
+.prop-inp:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 2px rgba(15,163,177,0.12); }
+.prop-inp:disabled { cursor: default; }
+.prop-inp.ok  { border-color: var(--green-lt); color: #8FE8A8; }
+.prop-inp.bad { border-color: var(--red);      color: #E89898; }
+.prop-ex { font-size: 11px; color: var(--text3); padding: 0 4px; }
+
+/* ── ORDER DRAG ─────────────────────────────────────── */
+.order-list { display: flex; flex-direction: column; gap: 8px; }
+.order-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  background: var(--card2); border: 1.5px solid var(--border2);
+  border-radius: 9px; cursor: grab;
+  transition: all var(--trans); user-select: none;
+}
+.order-item:hover { border-color: var(--teal); background: rgba(15,163,177,0.07); }
+.order-item.dragging { opacity: 0.4; cursor: grabbing; }
+.order-item.over { border-color: var(--teal); background: rgba(15,163,177,0.12); transform: scale(1.01); }
+.order-item.locked { cursor: default; }
+.order-item.ok  { border-color: var(--green-lt); background: rgba(34,150,58,0.08); cursor: default; }
+.order-item.bad { border-color: var(--red);      background: rgba(184,50,50,0.08); cursor: default; }
+
+.order-handle { color: var(--text3); font-size: 16px; flex-shrink: 0; }
+.order-num {
+  width: 26px; height: 26px; border-radius: 6px;
+  background: var(--border); color: var(--text2);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.order-txt { font-size: 13.5px; color: var(--text2); flex: 1; }
+.order-item.ok  .order-num { background: var(--green-lt); color: #fff; }
+.order-item.bad .order-num { background: var(--red);      color: #fff; }
+
+/* ── SUBMIT ALL ─────────────────────────────────────── */
+#btn-submit {
+  display: none;
+  width: 100%; margin-top: 48px;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--navy), var(--blue), var(--teal));
+  color: #fff; font-weight: 700; font-size: 16px;
+  letter-spacing: 0.5px;
+  border: none; border-radius: var(--rad); cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: all var(--trans);
+  box-shadow: 0 8px 30px rgba(21,96,130,0.5);
+}
+#btn-submit:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(21,96,130,0.6); }
+#btn-submit.show { display: block; animation: appear 0.5s ease; }
+
+/* ── RESULTS ─────────────────────────────────────────── */
+#results {
+  display: none;
+  border-radius: 18px; overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 50px rgba(0,0,0,0.4);
+  margin-top: 52px; animation: appear 0.5s ease;
+}
+
+.res-top {
+  position: relative; overflow: hidden;
+  padding: 52px 48px; text-align: center;
+  background: linear-gradient(160deg, var(--bg3), var(--navy), #0A1E32);
+}
+.res-top::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(21,96,130,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21,96,130,0.1) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.res-top-inner { position: relative; z-index: 1; }
+
+.res-ring {
+  width: 140px; height: 140px; margin: 0 auto 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--card);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative;
+  box-shadow: 0 0 40px rgba(15,163,177,0.25), inset 0 0 30px rgba(0,0,0,0.2);
+}
+.res-ring::after {
+  content: '';
+  position: absolute; inset: -5px;
+  border-radius: 50%;
+  border: 5px solid transparent;
+  border-top-color: var(--teal);
+  border-right-color: var(--blue);
+  animation: spin 1.8s ease-out forwards;
+}
+@keyframes spin { from { transform:rotate(-90deg); } to { transform:rotate(270deg); } }
+
+.res-pts {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px; font-weight: 700; color: var(--white); line-height: 1;
+}
+.res-denom { font-size: 14px; color: var(--text3); margin-top: 2px; }
+
+.res-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; color: var(--white); font-weight: 700; margin-bottom: 8px;
+}
+.res-subtitle { font-size: 14px; color: var(--text3); }
+
+.res-body { background: var(--card); padding: 40px 48px; }
+
+.res-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; margin-bottom: 30px;
+}
+.res-stat {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 18px 14px; text-align: center;
+}
+.res-stat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 34px; font-weight: 700; line-height: 1; margin-bottom: 5px;
+}
+.res-stat-val.g { color: var(--green-lt); }
+.res-stat-val.r { color: var(--red); }
+.res-stat-val.t { color: var(--teal); }
+.res-stat-val.o { color: var(--orange); }
+.res-stat-lbl { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; }
+
+.apprec {
+  padding: 20px 24px; border-radius: 12px;
+  font-size: 14.5px; line-height: 1.7; margin-bottom: 28px;
+  border: 1px solid;
+}
+.apprec.exc { background: rgba(34,150,58,0.1);  border-color: rgba(34,150,58,0.3);  color: #A0E8B0; }
+.apprec.gd  { background: rgba(15,163,177,0.1); border-color: rgba(15,163,177,0.3); color: #90D8E8; }
+.apprec.avg { background: rgba(184,134,11,0.1); border-color: rgba(184,134,11,0.3); color: #E8C870; }
+.apprec.bad { background: rgba(184,50,50,0.1);  border-color: rgba(184,50,50,0.3);  color: #E8A0A0; }
+
+.btn-retry {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: var(--text);
+  font-weight: 600; font-size: 14px;
+  padding: 13px 28px; border-radius: 10px;
+  border: 1.5px solid var(--border2); cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: all var(--trans);
+}
+.btn-retry:hover { border-color: var(--teal); color: var(--teal); transform: translateY(-2px); }
+
+/* ── FOOTER ─────────────────────────────────────────── */
+footer {
+  position: relative; z-index: 1;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 20px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 80px;
+}
+.ft-left { color: var(--text3); font-size: 12px; }
+.ft-right { display: flex; align-items: center; gap: 20px; }
+.ft-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--teal);
+  background: rgba(15,163,177,0.08);
+  border: 1px solid rgba(15,163,177,0.2);
+  padding: 4px 12px; border-radius: 20px;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 680px) {
+  .site-header { padding: 0 16px; }
+  .hero { padding: 40px 20px 36px; }
+  .progress-strip { padding: 10px 16px; }
+  .prog-dots { display: none; }
+  main { padding: 32px 16px; }
+  .res-body { padding: 24px; }
+  .res-grid { grid-template-columns: 1fr 1fr; }
+  .match-row { grid-template-columns: 1fr; }
+  .match-arr { display: none; }
+  .prop-row { grid-template-columns: 1fr; }
+  .meta-item { padding: 14px 20px; }
+  footer { flex-direction: column; gap: 10px; text-align: center; }
+  .mod-tags { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-left">
+    <div class="logo-chip">CLO3D</div>
+    <div class="header-label">
+      <strong>Quiz d'Évaluation</strong>
+      Modélisation 3D de Vêtements
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="mod-tags">
+      <span class="mod-tag">Module 4</span>
+      <span class="mod-tag">Module 5</span>
+      <span class="mod-tag">Module 6</span>
+      <span class="mod-tag">Module 7</span>
+    </div>
+    <span class="quiz-num">Quiz 2 / 2</span>
+  </div>
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-strip">
+  <div class="prog-label">Q <span id="prog-txt">0/14</span></div>
+  <div class="prog-dots" id="prog-dots"></div>
+  <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+  <div class="score-chip">Score&nbsp;<span class="pts" id="score-val">0</span>&nbsp;/ 24 pts</div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <div class="eyebrow-line"></div>
+      <span class="eyebrow-text">Évaluation formative · Niveau avancé</span>
+    </div>
+    <h1>Quiz 2 — <em>Simulation, Rendu & Projets</em></h1>
+    <p class="hero-desc">Modules avancés du cours CLO3D : mannequin 3D, propriétés physiques des tissus, carte de tension, rendu visuel et exercices pratiques. Chaque réponse validée est définitive.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <div class="meta-val teal">14</div>
+        <div class="meta-lbl">Questions</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-val teal">24</div>
+        <div class="meta-lbl">Points</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-val teal">~20'</div>
+        <div class="meta-lbl">Durée estimée</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-val teal">M4–M7</div>
+        <div class="meta-lbl">Modules couverts</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main id="quiz-main">
+
+  <!-- ══ MODULE 4 — MANNEQUIN 3D ══════════════════════ -->
+  <div class="sec-header">
+    <div class="sec-color c-blue"></div>
+    <div class="sec-body">
+      <div>
+        <span class="sec-tag c-blue">Module 4</span>
+        <div class="sec-title">Le Mannequin 3D</div>
+      </div>
+      <div class="sec-count">3 questions · 5 pts</div>
+    </div>
+  </div>
+
+  <!-- Q1 — QCM -->
+  <div class="q-card mod4" style="animation-delay:.05s">
+    <div class="q-head">
+      <div class="q-num nb">01</div>
+      <div class="q-meta">
+        <span class="q-badge qcm">QCM</span>
+        <div class="q-text">Quelle pose est recommandée pour réaliser la simulation initiale d'un vêtement dans CLO3D afin d'éviter les erreurs de drapage ?</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="options" id="opt1">
+        <div class="opt" data-q="1" data-v="A" onclick="selOpt(this,1,'A')"><div class="opt-l">A</div><div class="opt-txt">Pose de marche dynamique (walking pose)</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="1" data-v="B" onclick="selOpt(this,1,'B')"><div class="opt-l">B</div><div class="opt-txt">Pose de présentation (runway pose)</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="1" data-v="C" onclick="selOpt(this,1,'C')"><div class="opt-l">C</div><div class="opt-txt">T-pose ou A-pose (pose de repos)</div><div class="opt-ico">✓</div></div>
+        <div class="opt" data-q="1" data-v="D" onclick="selOpt(this,1,'D')"><div class="opt-l">D</div><div class="opt-txt">Pose assise à 90 degrés</div><div class="opt-ico">✗</div></div>
+      </div>
+      <button class="btn-val" id="bq1" onclick="valQCM(1,'C',2)" disabled>✔ Valider</button>
+      <div class="fb" id="fb1"></div>
+    </div>
+  </div>
+
+  <!-- Q2 — Vrai/Faux -->
+  <div class="q-card mod4" style="animation-delay:.1s">
+    <div class="q-head">
+      <div class="q-num nb">02</div>
+      <div class="q-meta">
+        <span class="q-badge vf">Vrai / Faux</span>
+        <div class="q-text">Dans CLO3D, il est possible d'importer des avatars personnalisés créés dans des logiciels tiers comme Body Labs ou Browzwear.</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="vf-row">
+        <div class="vf-btn" id="vf2t" onclick="selVF(2,'true')"><span class="vf-emoji">✅</span><span class="vf-lbl">VRAI</span></div>
+        <div class="vf-btn" id="vf2f" onclick="selVF(2,'false')"><span class="vf-emoji">❌</span><span class="vf-lbl">FAUX</span></div>
+      </div>
+      <button class="btn-val" id="bq2" onclick="valVF(2,'true',1)" disabled>✔ Valider</button>
+      <div class="fb" id="fb2"></div>
+    </div>
+  </div>
+
+  <!-- Q3 — MATCH avatars -->
+  <div class="q-card mod4" style="animation-delay:.15s">
+    <div class="q-head">
+      <div class="q-num nb">03</div>
+      <div class="q-meta">
+        <span class="q-badge match">Correspondances</span>
+        <div class="q-text">Associez chaque type d'avatar CLO3D à sa description correcte.</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="match-table">
+        <div class="match-row">
+          <div class="match-lbl">👩 Femmes</div>
+          <div class="match-arr">→</div>
+          <select class="match-sel" id="m3-1">
+            <option value="">-- Associer --</option>
+            <option value="a">XS à XL, grande taille, enceinte</option>
+            <option value="b">Standard, sportif, senior</option>
+            <option value="c">De la naissance à l'adolescence</option>
+            <option value="d">Import depuis logiciels tiers</option>
+          </select>
+        </div>
+        <div class="match-row">
+          <div class="match-lbl">👨 Hommes</div>
+          <div class="match-arr">→</div>
+          <select class="match-sel" id="m3-2">
+            <option value="">-- Associer --</option>
+            <option value="a">XS à XL, grande taille, enceinte</option>
+            <option value="b">Standard, sportif, senior</option>
+            <option value="c">De la naissance à l'adolescence</option>
+            <option value="d">Import depuis logiciels tiers</option>
+          </select>
+        </div>
+        <div class="match-row">
+          <div class="match-lbl">👧 Enfants</div>
+          <div class="match-arr">→</div>
+          <select class="match-sel" id="m3-3">
+            <option value="">-- Associer --</option>
+            <option value="a">XS à XL, grande taille, enceinte</option>
+            <option value="b">Standard, sportif, senior</option>
+            <option value="c">De la naissance à l'adolescence</option>
+            <option value="d">Import depuis logiciels tiers</option>
+          </select>
+        </div>
+        <div class="match-row">
+          <div class="match-lbl">🔧 Personnalisé</div>
+          <div class="match-arr">→</div>
+          <select class="match-sel" id="m3-4">
+            <option value="">-- Associer --</option>
+            <option value="a">XS à XL, grande taille, enceinte</option>
+            <option value="b">Standard, sportif, senior</option>
+            <option value="c">De la naissance à l'adolescence</option>
+            <option value="d">Import depuis logiciels tiers</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-val" id="bq3" onclick="valMatch(3,['a','b','c','d'],2)">✔ Valider</button>
+      <div class="fb" id="fb3"></div>
+    </div>
+  </div>
+
+  <!-- ══ MODULE 5 — SIMULATION ════════════════════════ -->
+  <div class="sec-header" style="margin-top:52px">
+    <div class="sec-color c-teal"></div>
+    <div class="sec-body">
+      <div>
+        <span class="sec-tag c-teal">Module 5</span>
+        <div class="sec-title">Simulation de Tissus</div>
+      </div>
+      <div class="sec-count">5 questions · 9 pts</div>
+    </div>
+  </div>
+
+  <!-- Q4 — Propriétés physiques fill -->
+  <div class="q-card mod5" style="animation-delay:.05s">
+    <div class="q-head">
+      <div class="q-num nt">04</div>
+      <div class="q-meta">
+        <span class="q-badge fill">Compléter</span>
+        <div class="q-text">Pour chaque propriété physique de tissu dans CLO3D, indiquez la valeur ou la plage correcte mentionnée dans le cours.</div>
+        <div class="q-note">Saisir la valeur exacte ou approchée (ex: "80-300" ou "0-100%")</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="prop-table">
+        <div style="display:grid;grid-template-columns:140px 1fr 1fr;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.8px;padding:0 12px">Propriété</span>
+          <span style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.8px">Valeur / Plage</span>
+          <span style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.8px">Exemple tissu</span>
+        </div>
+        <div class="prop-row">
+          <div class="prop-name">Weight</div>
+          <input class="prop-inp" id="p4-1" placeholder="ex: 80–300 g/m²">
+          <span class="prop-ex">Denim = 350 g/m²</span>
+        </div>
+        <div class="prop-row">
+          <div class="prop-name">Friction</div>
+          <input class="prop-inp" id="p4-2" placeholder="plage de valeurs">
+          <span class="prop-ex">Satin = 0.2</span>
+        </div>
+        <div class="prop-row">
+          <div class="prop-name">Thickness</div>
+          <input class="prop-inp" id="p4-3" placeholder="unité + plage">
+          <span class="prop-ex">Chiffon = 0.15</span>
+        </div>
+      </div>
+      <button class="btn-val" id="bq4" onclick="valProp4()">✔ Valider les propriétés</button>
+      <div class="fb" id="fb4"></div>
+    </div>
+  </div>
+
+  <!-- Q5 — QCM simulation steps -->
+  <div class="q-card mod5" style="animation-delay:.1s">
+    <div class="q-head">
+      <div class="q-num nt">05</div>
+      <div class="q-meta">
+        <span class="q-badge qcm">QCM</span>
+        <div class="q-text">Quelle est la propriété physique qui contrôle la résistance d'un tissu au pliage dans CLO3D ? Un tissu souple aura une valeur basse, un tissu rigide une valeur haute.</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="options" id="opt5">
+        <div class="opt" data-q="5" data-v="A" onclick="selOpt(this,5,'A')"><div class="opt-l">A</div><div class="opt-txt">Weight (Densité)</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="5" data-v="B" onclick="selOpt(this,5,'B')"><div class="opt-l">B</div><div class="opt-txt">Stretch (Élasticité)</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="5" data-v="C" onclick="selOpt(this,5,'C')"><div class="opt-l">C</div><div class="opt-txt">Bend (Rigidité)</div><div class="opt-ico">✓</div></div>
+        <div class="opt" data-q="5" data-v="D" onclick="selOpt(this,5,'D')"><div class="opt-l">D</div><div class="opt-txt">Friction (Glissement)</div><div class="opt-ico">✗</div></div>
+      </div>
+      <button class="btn-val" id="bq5" onclick="valQCM(5,'C',1)" disabled>✔ Valider</button>
+      <div class="fb" id="fb5"></div>
+    </div>
+  </div>
+
+  <!-- Q6 — Carte de tension (color legend match) -->
+  <div class="q-card mod5" style="animation-delay:.15s">
+    <div class="q-head">
+      <div class="q-num nt">06</div>
+      <div class="q-meta">
+        <span class="q-badge match">Correspondances</span>
+        <div class="q-text">Sur la carte de tension (Fit Map) de CLO3D, associez chaque couleur à sa signification diagnostique correcte.</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="color-legend">
+        <div class="cl-row">
+          <div class="cl-swatch" style="background:#003399"></div>
+          <span class="cl-text">Bleu foncé</span>
+          <select class="cl-select" id="cl6-1">
+            <option value="">-- Signification --</option>
+            <option value="a">Aucune tension — tissu en excès, risque de plis non voulus</option>
+            <option value="b">Tension légère — bonne aisance, zone idéale</option>
+            <option value="c">Tension modérée — zone de contact avec le corps</option>
+            <option value="d">Forte tension — serrement, problème de fit à corriger</option>
+          </select>
+        </div>
+        <div class="cl-row">
+          <div class="cl-swatch" style="background:linear-gradient(90deg,#0088FF,#00CC88)"></div>
+          <span class="cl-text">Bleu / Vert</span>
+          <select class="cl-select" id="cl6-2">
+            <option value="">-- Signification --</option>
+            <option value="a">Aucune tension — tissu en excès, risque de plis non voulus</option>
+            <option value="b">Tension légère — bonne aisance, zone idéale</option>
+            <option value="c">Tension modérée — zone de contact avec le corps</option>
+            <option value="d">Forte tension — serrement, problème de fit à corriger</option>
+          </select>
+        </div>
+        <div class="cl-row">
+          <div class="cl-swatch" style="background:linear-gradient(90deg,#FFCC00,#FF8800)"></div>
+          <span class="cl-text">Jaune / Orange</span>
+          <select class="cl-select" id="cl6-3">
+            <option value="">-- Signification --</option>
+            <option value="a">Aucune tension — tissu en excès, risque de plis non voulus</option>
+            <option value="b">Tension légère — bonne aisance, zone idéale</option>
+            <option value="c">Tension modérée — zone de contact avec le corps</option>
+            <option value="d">Forte tension — serrement, problème de fit à corriger</option>
+          </select>
+        </div>
+        <div class="cl-row">
+          <div class="cl-swatch" style="background:#FF2200"></div>
+          <span class="cl-text">Rouge vif</span>
+          <select class="cl-select" id="cl6-4">
+            <option value="">-- Signification --</option>
+            <option value="a">Aucune tension — tissu en excès, risque de plis non voulus</option>
+            <option value="b">Tension légère — bonne aisance, zone idéale</option>
+            <option value="c">Tension modérée — zone de contact avec le corps</option>
+            <option value="d">Forte tension — serrement, problème de fit à corriger</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-val" id="bq6" onclick="valColors6()">✔ Valider les couleurs</button>
+      <div class="fb" id="fb6"></div>
+    </div>
+  </div>
+
+  <!-- Q7 — VF -->
+  <div class="q-card mod5" style="animation-delay:.2s">
+    <div class="q-head">
+      <div class="q-num nt">07</div>
+      <div class="q-meta">
+        <span class="q-badge vf">Vrai / Faux</span>
+        <div class="q-text">Pour la simulation dans CLO3D, il est recommandé de lancer la simulation et d'attendre que l'état stable soit atteint avant d'utiliser la fonction "Freeze" pour figer le résultat.</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="vf-row">
+        <div class="vf-btn" id="vf7t" onclick="selVF(7,'true')"><span class="vf-emoji">✅</span><span class="vf-lbl">VRAI</span></div>
+        <div class="vf-btn" id="vf7f" onclick="selVF(7,'false')"><span class="vf-emoji">❌</span><span class="vf-lbl">FAUX</span></div>
+      </div>
+      <button class="btn-val" id="bq7" onclick="valVF(7,'true',1)" disabled>✔ Valider</button>
+      <div class="fb" id="fb7"></div>
+    </div>
+  </div>
+
+  <!-- Q8 — QCM processus simulation -->
+  <div class="q-card mod5" style="animation-delay:.25s">
+    <div class="q-head">
+      <div class="q-num nt">08</div>
+      <div class="q-meta">
+        <span class="q-badge qcm">QCM</span>
+        <div class="q-text">Quelle est la valeur d'élasticité (Stretch) typique d'un tissu jersey selon les données du cours CLO3D ?</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="options" id="opt8">
+        <div class="opt" data-q="8" data-v="A" onclick="selOpt(this,8,'A')"><div class="opt-l">A</div><div class="opt-txt">5% — similaire au coton tissé</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="8" data-v="B" onclick="selOpt(this,8,'B')"><div class="opt-l">B</div><div class="opt-txt">50% — tissu hautement extensible</div><div class="opt-ico">✓</div></div>
+        <div class="opt" data-q="8" data-v="C" onclick="selOpt(this,8,'C')"><div class="opt-l">C</div><div class="opt-txt">80 — valeur de rigidité comme le feutre</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="8" data-v="D" onclick="selOpt(this,8,'D')"><div class="opt-l">D</div><div class="opt-txt">0.5 — valeur de friction intermédiaire</div><div class="opt-ico">✗</div></div>
+      </div>
+      <button class="btn-val" id="bq8" onclick="valQCM(8,'B',2)" disabled>✔ Valider</button>
+      <div class="fb" id="fb8"></div>
+    </div>
+  </div>
+
+  <!-- ══ MODULE 6 — RENDU ══════════════════════════════ -->
+  <div class="sec-header" style="margin-top:52px">
+    <div class="sec-color c-orange"></div>
+    <div class="sec-body">
+      <div>
+        <span class="sec-tag c-orange">Module 6</span>
+        <div class="sec-title">Finalisation & Rendu Visuel</div>
+      </div>
+      <div class="sec-count">3 questions · 5 pts</div>
+    </div>
+  </div>
+
+  <!-- Q9 — QCM Iray -->
+  <div class="q-card mod6" style="animation-delay:.05s">
+    <div class="q-head">
+      <div class="q-num no">09</div>
+      <div class="q-meta">
+        <span class="q-badge qcm">QCM</span>
+        <div class="q-text">Le moteur de rendu photoréaliste intégré dans CLO3D qui permet l'éclairage global (GI) et les matériaux PBR s'appelle :</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="options" id="opt9">
+        <div class="opt" data-q="9" data-v="A" onclick="selOpt(this,9,'A')"><div class="opt-l">A</div><div class="opt-txt">V-Ray (Chaos Group)</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="9" data-v="B" onclick="selOpt(this,9,'B')"><div class="opt-l">B</div><div class="opt-txt">Arnold (Autodesk)</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="9" data-v="C" onclick="selOpt(this,9,'C')"><div class="opt-l">C</div><div class="opt-txt">NVIDIA Iray</div><div class="opt-ico">✓</div></div>
+        <div class="opt" data-q="9" data-v="D" onclick="selOpt(this,9,'D')"><div class="opt-l">D</div><div class="opt-txt">KeyShot Cloud</div><div class="opt-ico">✗</div></div>
+      </div>
+      <button class="btn-val" id="bq9" onclick="valQCM(9,'C',2)" disabled>✔ Valider</button>
+      <div class="fb" id="fb9"></div>
+    </div>
+  </div>
+
+  <!-- Q10 — Match formats d'export -->
+  <div class="q-card mod6" style="animation-delay:.1s">
+    <div class="q-head">
+      <div class="q-num no">10</div>
+      <div class="q-meta">
+        <span class="q-badge match">Correspondances</span>
+        <div class="q-text">Associez chaque format d'export CLO3D à son usage principal.</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="match-table">
+        <div class="match-row">
+          <div class="match-lbl">.GLB / .GLTF</div>
+          <div class="match-arr">→</div>
+          <select class="match-sel" id="m10-1">
+            <option value="">-- Usage --</option>
+            <option value="a">Web 3D, réalité augmentée, NFT mode</option>
+            <option value="b">Animation simulée pour effets visuels</option>
+            <option value="c">Maya, Blender, KeyShot, post-production</option>
+            <option value="d">Matière CLO — propriétés physiques + texture</option>
+          </select>
+        </div>
+        <div class="match-row">
+          <div class="match-lbl">.ABC (Alembic)</div>
+          <div class="match-arr">→</div>
+          <select class="match-sel" id="m10-2">
+            <option value="">-- Usage --</option>
+            <option value="a">Web 3D, réalité augmentée, NFT mode</option>
+            <option value="b">Animation simulée pour effets visuels</option>
+            <option value="c">Maya, Blender, KeyShot, post-production</option>
+            <option value="d">Matière CLO — propriétés physiques + texture</option>
+          </select>
+        </div>
+        <div class="match-row">
+          <div class="match-lbl">.OBJ / .FBX</div>
+          <div class="match-arr">→</div>
+          <select class="match-sel" id="m10-3">
+            <option value="">-- Usage --</option>
+            <option value="a">Web 3D, réalité augmentée, NFT mode</option>
+            <option value="b">Animation simulée pour effets visuels</option>
+            <option value="c">Maya, Blender, KeyShot, post-production</option>
+            <option value="d">Matière CLO — propriétés physiques + texture</option>
+          </select>
+        </div>
+        <div class="match-row">
+          <div class="match-lbl">.ZFAB</div>
+          <div class="match-arr">→</div>
+          <select class="match-sel" id="m10-4">
+            <option value="">-- Usage --</option>
+            <option value="a">Web 3D, réalité augmentée, NFT mode</option>
+            <option value="b">Animation simulée pour effets visuels</option>
+            <option value="c">Maya, Blender, KeyShot, post-production</option>
+            <option value="d">Matière CLO — propriétés physiques + texture</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-val" id="bq10" onclick="valMatch(10,['a','b','c','d'],2)">✔ Valider</button>
+      <div class="fb" id="fb10"></div>
+    </div>
+  </div>
+
+  <!-- Q11 — VF viewport -->
+  <div class="q-card mod6" style="animation-delay:.15s">
+    <div class="q-head">
+      <div class="q-num no">11</div>
+      <div class="q-meta">
+        <span class="q-badge vf">Vrai / Faux</span>
+        <div class="q-text">Le rendu en temps réel (Viewport) dans CLO3D utilise des Normal Maps pour simuler des reliefs et textures sans augmenter la géométrie du modèle 3D.</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="vf-row">
+        <div class="vf-btn" id="vf11t" onclick="selVF(11,'true')"><span class="vf-emoji">✅</span><span class="vf-lbl">VRAI</span></div>
+        <div class="vf-btn" id="vf11f" onclick="selVF(11,'false')"><span class="vf-emoji">❌</span><span class="vf-lbl">FAUX</span></div>
+      </div>
+      <button class="btn-val" id="bq11" onclick="valVF(11,'true',1)" disabled>✔ Valider</button>
+      <div class="fb" id="fb11"></div>
+    </div>
+  </div>
+
+  <!-- ══ MODULE 7 — EXERCICES ══════════════════════════ -->
+  <div class="sec-header" style="margin-top:52px">
+    <div class="sec-color c-purple"></div>
+    <div class="sec-body">
+      <div>
+        <span class="sec-tag c-purple">Module 7</span>
+        <div class="sec-title">Exercices Pratiques & Projet Final</div>
+      </div>
+      <div class="sec-count">3 questions · 5 pts</div>
+    </div>
+  </div>
+
+  <!-- Q12 — QCM exercice 2 durée -->
+  <div class="q-card mod7" style="animation-delay:.05s">
+    <div class="q-head">
+      <div class="q-num np">12</div>
+      <div class="q-meta">
+        <span class="q-badge qcm">QCM</span>
+        <div class="q-text">Dans le projet final du Module 7, combien de vues de rendu minimum sont requises (et dans quels angles) pour le livrable final ?</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="options" id="opt12">
+        <div class="opt" data-q="12" data-v="A" onclick="selOpt(this,12,'A')"><div class="opt-l">A</div><div class="opt-txt">2 vues : face et dos uniquement</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="12" data-v="B" onclick="selOpt(this,12,'B')"><div class="opt-l">B</div><div class="opt-txt">3 vues : face, dos et profil</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="12" data-v="C" onclick="selOpt(this,12,'C')"><div class="opt-l">C</div><div class="opt-txt">4 vues minimum : face, dos, profil et 3/4 — en PNG 2000px</div><div class="opt-ico">✓</div></div>
+        <div class="opt" data-q="12" data-v="D" onclick="selOpt(this,12,'D')"><div class="opt-l">D</div><div class="opt-txt">6 vues : toutes les perspectives à 60°</div><div class="opt-ico">✗</div></div>
+      </div>
+      <button class="btn-val" id="bq12" onclick="valQCM(12,'C',2)" disabled>✔ Valider</button>
+      <div class="fb" id="fb12"></div>
+    </div>
+  </div>
+
+  <!-- Q13 — Évaluation critères grille -->
+  <div class="q-card mod7" style="animation-delay:.1s">
+    <div class="q-head">
+      <div class="q-num np">13</div>
+      <div class="q-meta">
+        <span class="q-badge fill">Compléter</span>
+        <div class="q-text">Dans la grille d'évaluation du projet final, quel critère a le coefficient le plus élevé (x3) et quel est le nombre de points correspondant ?</div>
+        <div class="q-note">Saisir le nom exact du critère et les points associés.</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fill-group">
+          <label class="fill-label">Critère (coefficient x3)</label>
+          <input class="fill-inp" id="f13a" placeholder="Nom du critère...">
+        </div>
+        <div class="fill-group">
+          <label class="fill-label">Points attribués</label>
+          <input class="fill-inp" id="f13b" placeholder="ex: /6">
+        </div>
+      </div>
+      <button class="btn-val" id="bq13" onclick="valFill13()">✔ Valider</button>
+      <div class="fb" id="fb13"></div>
+    </div>
+  </div>
+
+  <!-- Q14 — QCM bonnes pratiques synthèse -->
+  <div class="q-card mod7" style="animation-delay:.15s">
+    <div class="q-head">
+      <div class="q-num np">14</div>
+      <div class="q-meta">
+        <span class="q-badge qcm">QCM — Synthèse finale</span>
+        <div class="q-text">Parmi ces quatre affirmations sur les bonnes pratiques CLO3D, laquelle est INCORRECTE selon le cours ?</div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="options" id="opt14">
+        <div class="opt" data-q="14" data-v="A" onclick="selOpt(this,14,'A')"><div class="opt-l">A</div><div class="opt-txt">Il faut positionner les pièces de patron autour de l'avatar AVANT de lancer la simulation</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="14" data-v="B" onclick="selOpt(this,14,'B')"><div class="opt-l">B</div><div class="opt-txt">Il est conseillé de simuler directement en pose de marche pour gagner du temps</div><div class="opt-ico">✓</div></div>
+        <div class="opt" data-q="14" data-v="C" onclick="selOpt(this,14,'C')"><div class="opt-l">C</div><div class="opt-txt">Il faut nommer toutes les pièces dès l'import (CF_FRONT, CB_BACK, SLEEVE_L…)</div><div class="opt-ico">✗</div></div>
+        <div class="opt" data-q="14" data-v="D" onclick="selOpt(this,14,'D')"><div class="opt-l">D</div><div class="opt-txt">Il est recommandé de sauvegarder régulièrement en .zprj avec des noms versionnés</div><div class="opt-ico">✗</div></div>
+      </div>
+      <button class="btn-val" id="bq14" onclick="valQCM(14,'B',3)" disabled>✔ Valider</button>
+      <div class="fb" id="fb14"></div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <button id="btn-submit" onclick="showResults()">
+    🏁 Voir mes résultats finaux
+  </button>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="res-top">
+      <div class="res-top-inner">
+        <div class="res-ring">
+          <div class="res-pts" id="r-pts">—</div>
+          <div class="res-denom">/ 24 pts</div>
+        </div>
+        <div class="res-title" id="r-title">Résultats du Quiz 2</div>
+        <div class="res-subtitle">Modules 4 · 5 · 6 · 7 — CLO3D</div>
+      </div>
+    </div>
+    <div class="res-body">
+      <div class="res-grid">
+        <div class="res-stat">
+          <div class="res-stat-val g" id="r-ok">—</div>
+          <div class="res-stat-lbl">Bonnes réponses</div>
+        </div>
+        <div class="res-stat">
+          <div class="res-stat-val r" id="r-bad">—</div>
+          <div class="res-stat-lbl">Mauvaises réponses</div>
+        </div>
+        <div class="res-stat">
+          <div class="res-stat-val t" id="r-pct">—</div>
+          <div class="res-stat-lbl">Score en %</div>
+        </div>
+        <div class="res-stat">
+          <div class="res-stat-val o" id="r-grade">—</div>
+          <div class="res-stat-lbl">Note / 20</div>
+        </div>
+      </div>
+      <div class="apprec" id="r-apprec"></div>
+      <div style="text-align:center">
+        <button class="btn-retry" onclick="if(confirm('Recommencer ?'))location.reload()">↺ Recommencer le quiz</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="ft-left">Département Design Textile et Mode · Master · Année universitaire 2025–2026</div>
+  <div class="ft-right">
+    <span class="ft-chip">CLO3D · Quiz 2 / 2</span>
+    <span style="color:var(--text3);font-size:12px">Modules 4 · 5 · 6 · 7</span>
+  </div>
+</footer>
+
+<script>
+// ── STATE ─────────────────────────────────────────────
+const S = {
+  sel: {}, val: {}, sc: {},
+  total: 14, maxPts: 24,
+};
+
+// Build progress dots
+const dotsEl = document.getElementById('prog-dots');
+for(let i=0;i<14;i++){
+  const d=document.createElement('div'); d.className='prog-dot'; d.id=`dot${i+1}`;
+  dotsEl.appendChild(d);
+}
+
+function updateUI(){
+  const done = Object.keys(S.val).length;
+  const pts  = Object.values(S.sc).reduce((a,b)=>a+b,0);
+  document.getElementById('prog-bar').style.width = (done/S.total*100)+'%';
+  document.getElementById('prog-txt').textContent = done+'/'+S.total;
+  document.getElementById('score-val').textContent = pts;
+  if(done===S.total) document.getElementById('btn-submit').classList.add('show');
+}
+
+function markDot(q,correct){
+  const d=document.getElementById('dot'+q);
+  if(d){ d.classList.add('done'); d.classList.add(correct?'correct':'wrong'); }
+}
+
+// ── SELECTION HELPERS ──────────────────────────────────
+function selOpt(el,q,v){
+  if(S.val[q]) return;
+  document.querySelectorAll(`[data-q="${q}"]`).forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel'); S.sel[q]=v;
+  document.getElementById('bq'+q).disabled=false;
+}
+
+function selVF(q,v){
+  if(S.val[q]) return;
+  document.getElementById('vf'+q+'t').classList.remove('sel');
+  document.getElementById('vf'+q+'f').classList.remove('sel');
+  document.getElementById('vf'+q+v[0]).classList.add('sel');
+  S.sel[q]=v; document.getElementById('bq'+q).disabled=false;
+}
+
+// ── VALIDATE QCM ───────────────────────────────────────
+function valQCM(q,ans,pts){
+  if(S.val[q]) return;
+  const sel=S.sel[q]; if(!sel) return;
+  S.val[q]=true; const ok=sel===ans;
+  S.sc[q]=ok?pts:0;
+  document.querySelectorAll(`[data-q="${q}"]`).forEach(o=>{
+    o.classList.add('locked');
+    if(o.dataset.v===ans) o.classList.add('ok');
+    else if(o.dataset.v===sel&&!ok) o.classList.add('bad');
+  });
+  showFB(q,ok,ans,S.sc[q],pts);
+  doneBtn(q,ok); markDot(q,ok); updateUI();
+}
+
+// ── VALIDATE VF ────────────────────────────────────────
+function valVF(q,ans,pts){
+  if(S.val[q]) return;
+  const sel=S.sel[q]; if(!sel) return;
+  S.val[q]=true; const ok=sel===ans;
+  S.sc[q]=ok?pts:0;
+  ['true','false'].forEach(v=>{
+    const b=document.getElementById('vf'+q+v[0]);
+    b.classList.add('locked');
+    if(v===ans) b.classList.add('ok');
+    else if(v===sel&&!ok) b.classList.add('bad');
+  });
+  showFB(q,ok,ans==='true'?'VRAI':'FAUX',S.sc[q],pts);
+  doneBtn(q,ok); markDot(q,ok); updateUI();
+}
+
+// ── VALIDATE MATCH ─────────────────────────────────────
+function valMatch(q,answers,pts){
+  if(S.val[q]) return;
+  const n=answers.length;
+  const selects=[];
+  for(let i=1;i<=n;i++){
+    const s=document.getElementById(`m${q}-${i}`)||document.getElementById(`m${10}-${i}`);
+    selects.push(document.getElementById(q===3?`m3-${i}`:`m${q}-${i}`));
+  }
+  if(selects.some(s=>!s||s.value==='')){alert('Veuillez compléter toutes les correspondances.');return;}
+  S.val[q]=true;
+  let ok=0;
+  selects.forEach((s,i)=>{
+    s.disabled=true;
+    if(s.value===answers[i]){s.classList.add('ok');ok++;}
+    else s.classList.add('bad');
+  });
+  const earned=ok===n?pts:ok>=n-1?1:0;
+  S.sc[q]=earned;
+  const isOk=ok===n;
+  const fb=document.getElementById('fb'+q);
+  fb.className=`fb show ${isOk?'ok-fb':'bad-fb'}`;
+  fb.innerHTML=`<strong>${isOk?'✓ Toutes les correspondances sont correctes !':'⚠ '+ok+'/'+n+' correspondances correctes'}</strong>${FBs[q]||(isOk?'':'Revoyez le cours pour vérifier les associations.')}`;
+  doneBtn(q,isOk); markDot(q,isOk); updateUI();
+}
+
+// ── VALIDATE PROP Q4 ───────────────────────────────────
+function valProp4(){
+  if(S.val[4]) return;
+  S.val[4]=true;
+  const p1=document.getElementById('p4-1').value.toLowerCase().replace(/\s/g,'');
+  const p2=document.getElementById('p4-2').value.toLowerCase().replace(/\s/g,'');
+  const p3=document.getElementById('p4-3').value.toLowerCase().replace(/\s/g,'');
+  // Accept partial correct keywords
+  const ok1 = p1.includes('80') || p1.includes('300') || p1.includes('g/m') || p1.includes('densit');
+  const ok2 = p2.includes('0') && (p2.includes('1') || p2.includes('friction') || p2.includes('gliss'));
+  const ok3 = p3.includes('0.1') || p3.includes('3') || p3.includes('mm') || p3.includes('épaiss');
+  ['p4-1','p4-2','p4-3'].forEach((id,i)=>{
+    const inp=document.getElementById(id);
+    inp.disabled=true;
+    inp.classList.add([ok1,ok2,ok3][i]?'ok':'bad');
+  });
+  const correct=[ok1,ok2,ok3].filter(Boolean).length;
+  const earned=correct===3?2:correct>=2?1:0;
+  S.sc[4]=earned;
+  const isOk=correct===3;
+  const fb=document.getElementById('fb4');
+  fb.className=`fb show ${isOk?'ok-fb':'bad-fb'}`;
+  fb.innerHTML=`<strong>${isOk?'✓ Parfait !':'⚠ '+correct+'/3 correctes — Réponses attendues :'}</strong>
+    ${!isOk?'<br>• Weight (Densité) : <span class="ans">80–300 g/m²</span><br>• Friction : <span class="ans">0.0–1.0</span><br>• Thickness : <span class="ans">0.1–3 mm</span>':'Vous maîtrisez les propriétés physiques des tissus CLO3D.'}`;
+  doneBtn(4,isOk); markDot(4,isOk); updateUI();
+}
+
+// ── VALIDATE COLORS Q6 ─────────────────────────────────
+function valColors6(){
+  if(S.val[6]) return;
+  const answers=['a','b','c','d'];
+  const sels=[1,2,3,4].map(i=>document.getElementById('cl6-'+i));
+  if(sels.some(s=>s.value==='')){alert('Veuillez associer toutes les couleurs.');return;}
+  S.val[6]=true;
+  let ok=0;
+  sels.forEach((s,i)=>{
+    s.disabled=true;
+    if(s.value===answers[i]){s.classList.add('ok');ok++;}
+    else s.classList.add('bad');
+  });
+  const earned=ok===4?3:ok>=3?1:0;
+  S.sc[6]=earned;
+  const isOk=ok===4;
+  const fb=document.getElementById('fb6');
+  fb.className=`fb show ${isOk?'ok-fb':'bad-fb'}`;
+  fb.innerHTML=`<strong>${isOk?'✓ Carte de tension parfaitement maîtrisée !':'⚠ '+ok+'/4 couleurs correctes'}</strong>
+    ${!isOk?'Rappel : Bleu foncé = Aucune tension · Bleu/Vert = Tension légère ✅ · Jaune/Orange = Contact · Rouge = Forte tension 🔴':'La carte de tension (Fit Map) est votre outil diagnostic principal pour corriger le fit.'}`;
+  doneBtn(6,isOk); markDot(6,isOk); updateUI();
+}
+
+// ── VALIDATE FILL Q13 ─────────────────────────────────
+function valFill13(){
+  if(S.val[13]) return;
+  S.val[13]=true;
+  const a=document.getElementById('f13a').value.toLowerCase();
+  const b=document.getElementById('f13b').value.toLowerCase().replace(/\s/g,'');
+  const okA=a.includes('construction')||a.includes('couture')||a.includes('assembl');
+  const okB=b.includes('6')||b.includes('/6');
+  document.getElementById('f13a').disabled=true;
+  document.getElementById('f13b').disabled=true;
+  document.getElementById('f13a').classList.add(okA?'ok':'bad');
+  document.getElementById('f13b').classList.add(okB?'ok':'bad');
+  const earned=(okA&&okB)?2:(okA||okB)?1:0;
+  S.sc[13]=earned;
+  const isOk=okA&&okB;
+  const fb=document.getElementById('fb13');
+  fb.className=`fb show ${isOk?'ok-fb':'bad-fb'}`;
+  fb.innerHTML=`<strong>${isOk?'✓ Correct !':'⚠ Réponse attendue :'}</strong>
+    Le critère avec coefficient x3 est <span class="ans">Construction (coutures, assemblage)</span> pour <span class="ans">/6 points</span>. C'est le critère le plus valorisé du projet final.`;
+  doneBtn(13,isOk); markDot(13,isOk); updateUI();
+}
+
+// ── FEEDBACK TEXTS ──────────────────────────────────────
+const FBs = {
+  1: 'Le cours recommande explicitement la T-pose ou A-pose pour la simulation initiale. Simuler directement en pose de marche peut générer des erreurs de drapage. On change de pose seulement pour la présentation finale.',
+  2: 'VRAI — CLO3D permet l\'import d\'avatars créés dans des logiciels tiers comme Body Labs ou Browzwear, en plus de sa propre bibliothèque d\'avatars diversifiés.',
+  3: 'Rappel : Femmes = XS à XL, grande taille, enceinte · Hommes = Standard, sportif, senior · Enfants = De la naissance à l\'adolescence · Personnalisé = Import depuis logiciels tiers.',
+  5: 'La propriété Bend contrôle la résistance au pliage. Soie = 10 (très souple), Feutre = 80 (très rigide). Weight est la densité (g/m²), Stretch l\'élasticité (%), Friction le glissement.',
+  7: 'VRAI — La procédure correcte est : vérifier les coutures → contrôler le positionnement → lancer la simulation (Barre d\'espace) → attendre la stabilisation → Freeze pour figer → ajuster si nécessaire.',
+  8: 'Le jersey a un Stretch de 50% car c\'est un tissu maille hautement extensible. Le coton tissé a 5%, le denim très peu. Les valeurs de Bend sont en unités 1-100, pas en pourcentage.',
+  9: 'CLO3D intègre le moteur NVIDIA Iray pour les rendus photoréalistes. Il permet l\'éclairage global (GI), les matériaux PBR (albedo, roughness, metalness), les caméras multi-angles et la résolution jusqu\'à 4K+.',
+  10: 'Rappel formats : .GLB/.GLTF = Web/AR/NFT · .ABC = Animation effets visuels · .OBJ/.FBX = 3D tiers (Maya, Blender) · .ZFAB = Fichier matière CLO avec propriétés physiques et texture.',
+  11: 'VRAI — Les Normal Maps permettent de simuler visuellement des reliefs (coutures, textures, broderies) sans alourdir la géométrie du modèle 3D. C\'est une technique clé du rendu temps réel.',
+  12: 'Le projet final requiert minimum 4 vues (face, dos, profil, 3/4) en PNG 2000px, plus une vue avec carte de tension annotée et un rapport PDF. La vidéo de défilé est optionnelle (bonus).',
+  14: 'L\'affirmation INCORRECTE est B. Le cours précise explicitement qu\'il faut simuler en T-pose ou A-pose, et changer de pose uniquement pour la présentation finale. Simuler directement en marche génère des erreurs de drapage.',
+};
+
+function showFB(q,ok,ans,earned,max){
+  const fb=document.getElementById('fb'+q);
+  fb.className=`fb show ${ok?'ok-fb':'bad-fb'}`;
+  const title=ok?`✓ Correct ! (+${earned} pt${earned>1?'s':''})`:`✗ Incorrect — Réponse : ${ans}`;
+  fb.innerHTML=`<strong>${title}</strong>${FBs[q]||''}`;
+}
+
+function doneBtn(q,ok){
+  const b=document.getElementById('bq'+q);
+  b.textContent=ok?'✓ Bonne réponse !':'✗ Réponse enregistrée';
+  b.classList.add('done',ok?'ok':'bad');
+}
+
+// ── RESULTS ──────────────────────────────────────────────
+function showResults(){
+  const pts=Object.values(S.sc).reduce((a,b)=>a+b,0);
+  const pct=Math.round(pts/S.maxPts*100);
+  const grade=Math.round(pts/S.maxPts*20*10)/10;
+  const okCount=Object.values(S.sc).filter(v=>v>0).length;
+  document.getElementById('r-pts').textContent=pts;
+  document.getElementById('r-ok').textContent=okCount;
+  document.getElementById('r-bad').textContent=S.total-okCount;
+  document.getElementById('r-pct').textContent=pct+'%';
+  document.getElementById('r-grade').textContent=grade+'/20';
+  let msg,cls;
+  if(pct>=85){
+    msg=`🏆 <strong>Excellent !</strong> ${pts}/24 pts (${pct}%). Maîtrise avancée de CLO3D confirmée ! Vous êtes prêt(e) à mener des projets de simulation textile complexes de manière autonome.`;
+    cls='exc';
+  } else if(pct>=70){
+    msg=`👍 <strong>Bien !</strong> ${pts}/24 pts (${pct}%). Bonne maîtrise des modules avancés. Quelques zones à consolider — revoyez notamment la carte de tension et les formats d'export.`;
+    cls='gd';
+  } else if(pct>=50){
+    msg=`📖 <strong>À améliorer.</strong> ${pts}/24 pts (${pct}%). Les bases sont partiellement acquises. Reprenez les modules 5 (simulation) et 6 (rendu) avant de vous lancer dans le projet final.`;
+    cls='avg';
+  } else {
+    msg=`⚠️ <strong>Insuffisant.</strong> ${pts}/24 pts (${pct}%). Une révision complète des modules 4 à 7 est nécessaire. Consultez le support de cours et pratiquez les exercices guidés.`;
+    cls='bad';
+  }
+  document.getElementById('r-apprec').className=`apprec ${cls}`;
+  document.getElementById('r-apprec').innerHTML=msg;
+  const r=document.getElementById('results');
+  r.style.display='block';
+  setTimeout(()=>r.scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+</script>
+</body>
+</html>
